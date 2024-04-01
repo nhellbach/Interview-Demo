@@ -2,19 +2,39 @@ import React, { useState, useEffect } from 'react';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
 import axios from 'axios';
 
+const labelMap = {
+  firstName: "Vorname",
+  lastName: "Nachname",
+  email: "E-Mail Adresse",
+  birthDate: "Geburtsdatum"
+};
+
 const PersönlicheDatenPage = () => {
-  const [userData, setUserData] = useState({ name: '', email: '' }); // Add more fields as needed
-  const [editMode, setEditMode] = useState({ name: false, email: false }); // Control edit mode for each field
+  const [userData, setUserData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    birthDate: ''
+  });
+  const [editMode, setEditMode] = useState({
+    firstName: false,
+    lastName: false,
+    email: false,
+    birthDate: false
+  });
   const [loading, setLoading] = useState(true);
 
-  // Fetch user data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('https://dummyjson.com/users/1'); // Adjust URL/path as necessary
-        setUserData({ name: response.data.name, email: response.data.email }); // Map response data correctly
+        const response = await axios.get('https://dummyjson.com/users/1');
+        
+        const { firstName, lastName, email, birthDate } = response.data;
+        setUserData({ firstName, lastName, email, birthDate });
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data: ", error);
@@ -25,23 +45,22 @@ const PersönlicheDatenPage = () => {
     fetchData();
   }, []);
 
-  // Handle edit mode toggle
   const handleEditToggle = (field) => {
     setEditMode((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
-  // Handle change in input fields
   const handleChange = (event, field) => {
     setUserData((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
-  // Example function to update name - adapt for other fields and methods as necessary
   const saveChanges = async (field) => {
     try {
+      const newValue = userData[field];
+      console.log('Data to be sent:', { [field]: newValue });
       const response = await axios.put(`https://dummyjson.com/users/1`, { [field]: userData[field] });
-      // Assuming the response includes the updated user object
-      setUserData({ name: response.data.name, email: response.data.email }); // Update local state with response
-      handleEditToggle(field); // Toggle off edit mode
+      const { firstName, lastName, email, birthDate } = response.data;
+      setUserData({ firstName, lastName, email, birthDate });
+      handleEditToggle(field);
     } catch (error) {
       console.error("Error updating data: ", error);
     }
@@ -55,22 +74,22 @@ const PersönlicheDatenPage = () => {
         Persönliche Daten
       </Typography>
       {Object.entries(userData).map(([key, value]) => (
-        <div key={key} style={{ marginBottom: '20px' }}>
+        <div key={key} style={{ marginBottom: '20px', display: 'flex', alignItems: 'center' }}>
           <TextField
-            label={key.charAt(0).toUpperCase() + key.slice(1)}
+            label={labelMap[key] || key}
             variant="outlined"
             value={value}
             disabled={!editMode[key]}
             onChange={(event) => handleChange(event, key)}
+            style={{ flex: 1 }}
           />
           <Button
             variant="contained"
             color="primary"
-            style={{ marginLeft: '10px' }}
             onClick={() => editMode[key] ? saveChanges(key) : handleEditToggle(key)}
-          >
-            {editMode[key] ? 'Save' : 'Edit'}
-          </Button>
+            style={{ marginLeft: '10px' }}
+            startIcon={editMode[key] ? <SaveIcon /> : <EditIcon />}
+          />
         </div>
       ))}
     </div>
