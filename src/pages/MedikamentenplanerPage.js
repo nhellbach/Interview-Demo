@@ -24,6 +24,8 @@ const MedikamentenplanerPage = () => {
     timeOfDay: "",
     firstIntakeDate: "",
   });
+  //State to track the selected Date
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   // Handle form input change
   const handleInputChange = (event) => {
@@ -31,10 +33,11 @@ const MedikamentenplanerPage = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Add new medication
+  // Add new medication with an ID
   const addMedication = () => {
     const { name, interval, timeOfDay, firstIntakeDate } = formData;
     const newMedication = {
+      id: Date.now(), // Use current timestamp as a simple unique ID
       name,
       interval: parseInt(interval),
       timeOfDay,
@@ -57,16 +60,16 @@ const MedikamentenplanerPage = () => {
 
   // Calculate next intake date for a medication
   const calculateNextIntakeDate = (firstIntakeDate, interval) => {
-    const today = new Date();
-    const daysDifference = Math.floor(
-      (today - firstIntakeDate) / (1000 * 60 * 60 * 24)
-    );
-    const remainingDays = interval - (daysDifference % interval);
-    const nextIntakeDate = new Date(
-      today.getTime() + remainingDays * 24 * 60 * 60 * 1000
-    );
-    return nextIntakeDate.toDateString();
+    const today = new Date(selectedDate).setHours(0, 0, 0, 0);
+    const firstDate = new Date(firstIntakeDate).setHours(0, 0, 0, 0);
+    const differenceInTime = today - firstDate;
+    const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+    return differenceInDays % interval === 0;
   };
+
+  const medicationsForSelectedDate = medications.filter((medication) =>
+    calculateNextIntakeDate(medication.firstIntakeDate, medication.interval)
+  );
 
   return (
     <Stack spacing={2}>
@@ -79,15 +82,15 @@ const MedikamentenplanerPage = () => {
         Einnahmeintervalle automatisiert zu setzen.
       </Typography>
       <Stack direction="row" spacing={2}>
-        <Calendar />
+        <Calendar value={selectedDate} onChange={setSelectedDate} />
         <Stack spacing={2}>
           <Typography variant="h6" gutterBottom>
-            Medikamente für heute
+            einzunehmende Medikamente
           </Typography>
-          {medications.map((medication, index) => (
+          {medicationsForSelectedDate.map((medication, index) => (
             <div key={index}>
               <Checkbox />
-              <span>{medication.name}</span>
+              <span>{medication.name} ({medication.timeOfDay})</span>
             </div>
           ))}
           <Typography variant="h6" gutterBottom style={{ marginTop: "20px" }}>
@@ -122,7 +125,7 @@ const MedikamentenplanerPage = () => {
             name="firstIntakeDate"
             label="        erstes Einnahmedatum"
             InputLabelProps={{
-              style: { paddingLeft: '70px' }, // Adjust this as needed
+              style: { paddingLeft: "70px" }, // Adjust this as needed
             }}
             type="date"
             value={formData.firstIntakeDate}
