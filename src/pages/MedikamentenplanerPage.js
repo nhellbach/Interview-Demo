@@ -67,6 +67,7 @@ const MedikamentenplanerPage = () => {
     return differenceInDays % interval === 0;
   };
 
+  //Rendering logic to display medication for intake
   const medicationsForSelectedDate = medications.filter((medication) =>
     calculateNextIntakeDate(medication.firstIntakeDate, medication.interval)
   );
@@ -125,7 +126,7 @@ const MedikamentenplanerPage = () => {
             name="firstIntakeDate"
             label="        erstes Einnahmedatum"
             InputLabelProps={{
-              style: { paddingLeft: "70px" }, // Adjust this as needed
+              style: { paddingLeft: "70px" },
             }}
             type="date"
             value={formData.firstIntakeDate}

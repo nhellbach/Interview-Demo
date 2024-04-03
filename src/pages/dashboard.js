@@ -29,6 +29,7 @@ import BenachrichtigungenPage from './BenachrichtigungenPage';
 
 const drawerWidth = 240;
 
+//Styling main
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     flexGrow: 1,
@@ -48,6 +49,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   }),
 );
 
+//Appbar
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme, open }) => ({
@@ -74,6 +76,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
+//List of pages for Drawer
 const pages = [
   'Persönliche Daten', 'Anträge', 'Patientendaten', 'Medikamentenplaner',
   'Wissensdatenbank', 'Forum', 'Benachrichtigungen'
